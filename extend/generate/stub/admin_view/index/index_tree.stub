@@ -1,0 +1,40 @@
+{extend name="public/base" /}
+{block name='content'}
+{include file='public/content_header' /}
+<!--数据列表页面-->
+<section class="content">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+
+                <!--数据列表顶部-->
+                <div class="card-header">
+                    <div>
+                        [INDEX_CREATE]
+                        [INDEX_DEL1]
+                        [INDEX_ENABLE1]
+                        [INDEX_REFRESH]
+                    </div>
+                </div>
+
+                <div class="card-body table-responsive p-0" >
+                    <table class="table table-hover table-bordered dataTable text-nowrap">
+                        <thead>
+                        <tr>
+                            [INDEX_SELECT1]
+                            [NAME_LIST]
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {$data|raw}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+{/block}

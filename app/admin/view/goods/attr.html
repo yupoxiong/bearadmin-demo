@@ -1,0 +1,436 @@
+<style>
+    .attrSet {
+        margin-bottom: 20px;
+        border: 1px solid #ebebeb;
+        padding-bottom: 5px;
+    }
+    .attrSet dt {
+        margin-bottom: 5px;
+        border-bottom-color: #ebebeb;
+        background-color: #ECECEC;
+    }
+    .attrSet dd {
+        padding-left: 30px;
+        line-height: 30px;
+    }
+    .attrList {
+        display: inline-block;
+        min-width: 60px;
+        margin: 5px;
+    }
+    .attrName {
+        padding: 7px 5px;
+        vertical-align: middle;
+    }
+    .attrSet dt .attrName {
+        border-radius: 4px 0 0 4px;
+        padding: 6.5px 5px;
+        margin-right: -2px;
+    }
+    .rightBtnGroup {
+        margin: auto;
+        padding: 0;
+    }
+    .rightBtn {
+        margin-left: -4px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .attrInput {
+        margin: 5px 20px;
+        display: inline-block;
+    }
+    .attrInput input {
+        width: 145px;
+        display: inline;
+        margin-right: -4px;
+        vertical-align: middle;
+    }
+    .attrInput label {
+        display: inline-block;
+        width: 50px;
+    }
+    .attrUniInput {
+        margin: 5px;
+        display: table-cell;
+    }
+    .attrUniInput input {
+        width: 145px;
+        display: inline;
+        margin-right: -4px;
+        vertical-align: middle;
+    }
+    .attrUniInput label {
+        display: inline-block;
+        width: 50px;
+    }
+</style>
+
+<div class="form-group row">
+    <label for="attr_group_name" class="col-sm-2 col-form-label">规格组</label>
+    <div class="col-sm-10 col-md-4">
+
+        <div class="input-group">
+            <input id="attr_group_name" placeholder="例如颜色、尺码等"
+                   type="text" class="form-control field-text">
+            <span class="input-group-append">
+                      <button type="button" id="attr_group_button" class="btn btn-primary">确定</button>
+                    </span>
+        </div>
+    </div>
+</div>
+
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label">规格设置</label>
+    <div class="col-sm-10">
+        <div class="attrNameList" id="attrSettingList">
+            {if isset($data) && $data.use_attr==1}
+            {foreach $data.attr_group_list as $key=>$value }
+            <dl class="attrSet" id="attrGroupDiv{$key}">
+                <dt class="hd">
+                    <div class="attrList">
+                        <span class="bg-primary attrName attrGroupName"
+                              data-index="{$key}">{$value.attr_group_name}</span>
+                        <span class="rightBtnGroup">
+                            <button type="button" onclick="delGroup(this)"
+                                    class="delGroupBtn btn btn-danger btn-sm rightBtn"
+                                    data-id="attrGroupDiv{$key}">x</button>
+                        </span>
+                    </div>
+                </dt>
+                <dd class="bd">
+                    {foreach $value.attr_list as $key1=>$value1}
+                    <div class="attrList">
+                        <span class="bg-primary attrName attrValueName">{$value1.attr_name}</span>
+                        <span class="rightBtnGroup">
+                            <button onclick="removeAttrName(this)" type="button"
+                                    class="delValueBtn btn btn-danger btn-sm rightBtn">x</button>
+                        </span>
+                    </div>
+                    {/foreach}
+                    <div class="attrInput">
+                        <label for="attrValue{$key}">规格值</label>
+                        <input id="attrValue{$key}" class="form-control input-sm" placeholder="例如白色、蓝色等">
+                        <button type="button" onclick="addAttrName(this)"
+                                class="addAttrNameBtn btn btn-primary btn-sm rightBtn" data-index="{$key}">确定
+                        </button>
+                    </div>
+                </dd>
+            </dl>
+            {/foreach}
+            {/if}
+        </div>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label">规格数据设置</label>
+    <div class="col-sm-10">
+        <div class="card">
+            <div class="card-body">
+                <table id="goods" class="table table-hover table-bordered datatable">
+                    <thead>
+                    <tr class="input-type" id="dataHead">
+                        <!--这里显示规格组-->
+                        {if isset($data) && $data.use_attr==1}
+                        {foreach $data.attr[0]['attr_info'] as $key=>$value }
+                        <th>{$value.attr_group}</th>
+                        {/foreach}
+                        <th class="attrUniInput">
+                            库存
+                            <input class="form-control input-sm" id="uniStock" placeholder="统一设置库存">
+                            <button onclick="setStock()" type="button" class="btn btn-primary btn-sm rightBtn">
+                                设置
+                            </button>
+                        </th>
+                        <th class="attrUniInput">
+                            价格
+                            <input class="form-control input-sm" id="uniPrice" placeholder="统一设置价格">
+                            <button onclick="setPrice()" type="button" class="btn btn-primary btn-sm rightBtn">
+                                设置
+                            </button>
+                        </th>
+                        {/if}
+                    </tr>
+                    </thead>
+                    <tbody id="dataBody">
+                    {if isset($data) && $data.use_attr==1}
+                    {foreach $data.attr as $key=>$value}
+
+                    <tr>
+                        {foreach $value.attr_info as $key1=>$value1}
+                        <td>
+                            {$value1.attr_name}
+                            <input value="{$value1.attr_group}" type="hidden" name="attr_data[{$key}][attr_info][{$key1}][attr_group]">
+                            <input value="{$value1.attr_name}" type="hidden" name="attr_data[{$key}][attr_info][{$key1}][attr_name]">
+                            <input value="{$value1.attr_id}" type="hidden" name="attr_data[{$key}][attr_info][{$key1}][attr_id]">
+                        </td>
+                        {/foreach}
+                        <td>
+                            <input class="form-control input-sm attrStock" name="attr_data[{$key}][number]" value="{$value['number']}" placeholder="库存">
+                        </td>
+                        <td>
+                            <input class="form-control input-sm attrPrice" name="attr_data[{$key}][price]" value="{$value['price']}" placeholder="价格">
+                        </td>
+                    </tr>
+                    {/foreach}
+                    {/if}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="templateContent" style="display: none;">
+    <!-- 整体模版 -->
+    <div id="parentTemplate">
+        <dl class="attrSet" id="attrGroupDivINDEX_NUM">
+            <dt class="hd">
+                GROUP_CONTENT
+            </dt>
+            <dd class="bd">
+                VALUE_CONTENT
+            </dd>
+        </dl>
+    </div>
+    <!-- 规格组名称模版 -->
+    <div id="groupNameTemplate">
+        <div class="attrList">
+            <span class="bg-primary attrName attrGroupName" data-index="INDEX_NUM">GROUP_NAME</span>
+            <span class="rightBtnGroup">
+                <button type="button" onclick="delGroup(this)" class="delGroupBtn btn btn-danger btn-sm rightBtn"
+                        data-id="attrGroupDivINDEX_NUM">x</button>
+            </span>
+        </div>
+    </div>
+
+    <div id="attrNameTemplate">
+        <div class="attrList">
+            <span class="bg-primary attrName attrValueName">VALUE_NAME</span>
+            <span class="rightBtnGroup">
+                <button onclick="removeAttrName(this)" type="button" class="delValueBtn btn btn-danger btn-sm rightBtn">x</button>
+            </span>
+        </div>
+    </div>
+
+    <div id="groupValueInputTemplate">
+        <div class="attrInput">
+            <label for="attrValueINDEX_NUM">规格值</label>
+            <input id="attrValueINDEX_NUM" class="form-control input-sm"
+                   placeholder="例如白色、蓝色等">
+            <button type="button" onclick="addAttrName(this)" class="addAttrNameBtn btn btn-primary btn-sm rightBtn"
+                    data-index="INDEX_NUM">确定
+            </button>
+        </div>
+    </div>
+
+    <div id="dataTrTemplate">
+
+    </div>
+
+</div>
+<script>
+
+    var headTemplate = '<th class="attrUniInput">库存<input class="form-control input-sm" id="uniStock" placeholder="统一设置库存" />'
+        + '<button onclick="setStock()" type="button" class="btn btn-primary btn-sm rightBtn">设置</button></th>'
+        + ' <th class="attrUniInput">价格<input class="form-control input-sm" id="uniPrice" placeholder="统一设置价格" />'
+        + '<button onclick="setPrice()" type="button" class="btn btn-primary btn-sm rightBtn">设置</button></th>';
+
+    var dataTemplate = '<tr>DATA_TR'
+        + '<td><input class="form-control input-sm attrStock" name="attr_dataDATA_INDEX[number]" value="0" placeholder="库存"></td>'
+        + '<td> <input class="form-control input-sm attrPrice" name="attr_dataDATA_INDEX[price]" value="0" placeholder="价格"> </td>'
+        + '</tr>';
+
+    var attrIndex = 0;
+
+    $(function () {
+
+        $('#attr_group_button').on('click', function () {
+            let $attr_group_name = $('#attr_group_name');
+            let attr_group_name = $attr_group_name.val();
+            if (attr_group_name.length < 1) {
+                layer.msg('请输入规格组名称');
+                return false;
+            }
+
+            let groupNameTemplate = $('#groupNameTemplate')
+                .html()
+                .replace(/ATTR_INDEX/g, '[' + attrIndex + ']')
+                .replace(/INDEX_NUM/g, attrIndex)
+                .replace(/GROUP_NAME/g, attr_group_name);
+
+            let attrNameTemplate = $('#attrNameTemplate')
+                .html()
+                .replace(/ATTR_INDEX/g, '[' + attrIndex + ']')
+                .replace(/INDEX_NUM/g, attrIndex);
+
+            let groupValueInputTemplate = $('#groupValueInputTemplate')
+                .html()
+                .replace(/ATTR_INDEX/g, '[' + attrIndex + ']')
+                .replace(/INDEX_NUM/g, attrIndex);
+
+            let parentTemplate = $('#parentTemplate')
+                .html()
+                .replace(/GROUP_CONTENT/g, groupNameTemplate)
+                .replace(/VALUE_CONTENT/g, groupValueInputTemplate)
+                .replace(/ATTR_INDEX/g, '[' + attrIndex + ']')
+                .replace(/INDEX_NUM/g, attrIndex);
+
+            $('#attrSettingList').append(parentTemplate);
+            $attr_group_name.val('');
+
+            controlGroupInput();
+
+            attrIndex++;
+        });
+
+    });
+
+    function controlGroupInput() {
+        let $attr_group_name = $('#attr_group_name');
+        let $attr_group_button = $('#attr_group_button');
+        let groupObjs = $('#attrSettingList .attrGroupName');
+        if (groupObjs.length >= 3) {
+            $attr_group_name.attr('readonly', 'readonly');
+            $attr_group_button.attr('disabled', 'disabled');
+        } else {
+            $attr_group_name.attr('readonly', false);
+            $attr_group_button.attr('disabled', false);
+        }
+    }
+
+
+    //字段更多设置
+    function addAttrName(obj) {
+
+        let $this = $(obj);
+
+        let currentIndex = $this.data('index');
+
+        let $nameInput = $('#attrValue' + currentIndex);
+
+        let nameContent = $nameInput.val();
+        if (nameContent.length < 1) {
+            layer.msg('请输入规格名称');
+            return false;
+        }
+
+        let attrNameTemplate = $('#attrNameTemplate')
+            .html()
+            .replace(/VALUE_NAME/g, nameContent);
+
+        $this.parent().before(attrNameTemplate);
+        $nameInput.val('');
+
+        refreshData();
+    }
+
+    function removeAttrName(obj) {
+        let $this = $(obj);
+        $this.parent().parent().remove();
+        refreshData();
+    }
+
+    //删除规格组
+    function delGroup(obj) {
+        let $this = $(obj);
+        $('#' + $this.data('id')).remove();
+        refreshData();
+        controlGroupInput();
+    }
+
+    //更新数据
+    function refreshData() {
+        //处理表头
+        let headValueTh = '';
+        let groupList = [];
+
+        let arrAll = [];
+        let all = $('#attrSettingList').children();
+        $.each(all, function (index, item) {
+
+            let attrGroups = $(item).find('.attrGroupName');
+
+            $.each(attrGroups, function (index_group, item_group) {
+
+                let indexValue = $(item).find('.attrValueName');
+
+                if (indexValue.length > 0) {
+                    let indexArr = [];
+                    $.each(indexValue, function (index_value, item_value) {
+                        indexArr.push($(item_value).html());
+                    });
+                    arrAll.push(indexArr);
+
+                    let groupName = $(item_group).html();
+                    headValueTh += '<th>' + groupName + '</th>';
+                    groupList.push(groupName);
+                }
+
+            });
+
+        });
+        let headHtml = headValueTh + headTemplate;
+        $('#dataHead').html(headHtml);
+
+        let result = cartesianProduct(arrAll);
+
+        let $dataBody = $('#dataBody');
+        let dataHtml = '';
+        for (let i = 0; i < result.length; i++) {
+
+            let attrNameTr = '';
+            for (let j = 0; j < result[i].length; j++) {
+
+                let attr_group = groupList[j];
+                let attr_name = result[i][j];
+                let attr_id = '';
+
+                let attr_group_input = '<input value="' + attr_group + '" type="hidden" name="attr_data[' + i + '][attr_info][' + j + '][attr_group]" />';
+                let attr_name_input = '<input value="' + attr_name + '" type="hidden" name="attr_data[' + i + '][attr_info][' + j + '][attr_name]" />';
+                let attr_id_input = '<input value="' + attr_id + '" type="hidden" name="attr_data[' + i + '][attr_info][' + j + '][attr_id]" />';
+
+                attrNameTr += '<td>' + result[i][j]
+                    + attr_group_input
+                    + attr_name_input
+                    + attr_id_input
+                    + '</td>'
+            }
+            let trTemplate = dataTemplate
+                .replace(/DATA_INDEX/g, '[' + i + ']')
+                .replace(/DATA_TR/g, attrNameTr);
+
+            dataHtml += trTemplate;
+        }
+        $dataBody.html(dataHtml);
+    }
+
+
+    //获取笛卡尔积
+    function cartesianProduct(array) {
+        return array.reduce(
+            function (a, b) {
+                return a
+                    .map(function (x) {
+                        return b.map(function (y) {
+                            return x.concat(y)
+                        })
+                    })
+                    .reduce(function (a, b) {
+                        return a.concat(b)
+                    }, [])
+            },
+            [[]]
+        )
+    }
+
+    function setStock() {
+        $('.attrStock').val($('#uniStock').val());
+    }
+
+    function setPrice() {
+        $('.attrPrice').val($('#uniPrice').val());
+    }
+</script>

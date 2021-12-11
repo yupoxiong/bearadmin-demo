@@ -1,0 +1,193 @@
+{extend name='public/base' /}
+{block name='content'}
+{include file='public/content_header' /}
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <!-- 表单头部 -->
+                <div class="card-header">
+                    <div class="btn-group">
+                        <a class="btn flat btn-sm btn-default BackButton">
+                            <i class="fas fa-arrow-left"></i>
+                            返回
+                        </a>
+                    </div>
+                </div>
+                <!-- 表单 -->
+                <form id="dataForm" class="form-horizontal dataForm" action="" method="post"
+                      enctype="multipart/form-data">
+                    <!-- 表单字段区域 -->
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <label for="name" class="col-sm-2 col-form-label">名称</label>
+                            <div class="col-sm-10 col-md-4 formInputDiv">
+                                <input id="name" name="name" value="{$data.name|default=''}" placeholder="请输入名称"
+                                       type="text" class="form-control fieldText">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="contact" class="col-sm-2 col-form-label">联系人</label>
+                            <div class="col-sm-10 col-md-4 formInputDiv">
+                                <input id="contact" name="contact" value="{$data.contact|default=''}"
+                                       placeholder="请输入联系人" type="text" class="form-control fieldText">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="mobile" class="col-sm-2 col-form-label">手机号</label>
+                            <div class="col-sm-10 col-md-4 formInputDiv">
+                                <input id="mobile" name="mobile" value="{$data.mobile|default=''}" placeholder="请输入手机号"
+                                       type="tel" maxlength="11" class="form-control fieldMobile">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="email" class="col-sm-2 col-form-label">邮箱</label>
+                            <div class="col-sm-10 col-md-4 formInputDiv">
+                                <input id="email" name="email" value="{$data.email|default=''}" placeholder="请输入邮箱"
+                                       type="text" class="form-control fieldText">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="address" class="col-sm-2 col-form-label">地址</label>
+                            <div class="col-sm-10 col-md-4 formInputDiv">
+                                <input id="address" name="address" value="{$data.address|default=''}"
+                                       placeholder="请输入地址" type="text" class="form-control fieldText">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="sort_number" class="col-sm-2 col-form-label">排序</label>
+                            <div class="col-sm-10 col-md-4 formInputDiv">
+                                <div class="input-group">
+                                    <input id="sort_number" name="sort_number"
+                                           value="{$data.sort_number|default='1000'}" placeholder="请输入排序" type="number"
+                                           class="form-control fieldNumber">
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            $('#sort_number')
+                                .bootstrapNumber({
+                                    upClass: 'success',
+                                    downClass: 'primary',
+                                    center: true
+                                });
+                        </script>
+                        <div class="form-group row">
+                            <label for="status" class="col-sm-2 col-form-label">客户状态</label>
+                            <div class="col-sm-10 col-md-4 formInputDiv">
+                                <select name="status" id="status" class="form-control select2bs4 fieldSelect"
+                                        data-placeholder="请选择客户状态">
+                                    <option value=""></option>
+                                    {foreach status_list as $key=>$value}
+                                    <option value="{$key}" {if isset($data) && $data.status==$key}selected{/if}>
+                                        {$value}
+                                    </option>
+                                    {/foreach}
+
+
+                                </select>
+                            </div>
+                        </div>
+                        <script>
+                            $('#status').select2({
+                                theme: 'bootstrap4'
+                            });
+                        </script>
+
+                    </div>
+                    <!-- 表单底部 -->
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-sm-2">
+                            </div>
+
+                            <div class="col-sm-10 col-md-4 formInputDiv">
+
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-sm btn-primary dataFormSubmit">
+                                        保 存
+                                    </button>
+                                </div>
+                                <div class="btn-group">
+                                    <button type="reset" class="btn btn-sm btn-default dataFormReset">
+                                        重 置
+                                    </button>
+                                </div>
+
+                                {if !isset($data)}
+                                <div class="btn-group float-right createContinueDiv">
+                                    <input type="checkbox" class="form-check-input" value="1" id="_create"
+                                           name="_create" title="继续添加数据">
+                                    <label class="form-check-label" for="_create">继续添加</label>
+                                </div>
+                                {/if}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    /** 表单验证 **/
+    $('#dataForm').validate({
+        rules: {
+            'name': {
+                required: true,
+
+            },
+            'contact': {
+                required: true,
+
+            },
+            'mobile': {
+                required: true,
+                mobile: true,
+
+            },
+            'email': {
+                required: true,
+
+            },
+            'address': {
+                required: true,
+
+            },
+            'sort_number': {
+                required: true,
+
+            },
+
+        },
+        messages: {
+            'name': {
+                required: "名称不能为空",
+
+            },
+            'contact': {
+                required: "联系人不能为空",
+
+            },
+            'mobile': {
+                required: "手机号不能为空",
+                mobile: "手机号必须为11位手机号码",
+
+            },
+            'email': {
+                required: "邮箱不能为空",
+
+            },
+            'address': {
+                required: "地址不能为空",
+
+            },
+            'sort_number': {
+                required: "排序不能为空",
+
+            },
+
+        }
+    });
+</script>
+{/block}

@@ -1,0 +1,149 @@
+{extend name="public/base" /}
+{block name='content'}
+{include file='public/content_header' /}
+{js href="__ADMIN_PLUGINS__/jquery-qrcode/jquery-qrcode.min.js" /}
+<section class="content">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">前端生成二维码</h3>
+                </div>
+
+                <form id="frontDataForm" class="dataForm form-horizontal" method="post" onsubmit="return frontCreate()" enctype="multipart/form-data">
+                    <div class="card-body">
+                        <div class="fields-group">
+                            <div class="form-group">
+                                <label for="frontContent" class="col-sm-2 control-label">内容</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-pencil"></i></span>
+                                        <input  name="content" id="frontContent" maxlength="210" class="form-control" placeholder="请输入文字或网址,按回车键生成">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">生成结果</h3>
+                </div>
+                <div class="card-body">
+                    <div style="text-align: center">
+                        <div id="frontResult"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">PHP生成二维码</h3>
+                </div>
+                <form id="dataForm" class="dataForm form-horizontal" method="post" onsubmit="return create()" enctype="multipart/form-data">
+                    <div class="card-body">
+                        <div class="fields-group">
+                            <div class="form-group">
+                                <label for="content" class="col-sm-2 control-label">内容</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-pencil"></i></span>
+                                        <input  name="content" id="content" maxlength="210" class="form-control" placeholder="请输入文字或网址,按回车键生成">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">生成结果</h3>
+                </div>
+                <div class="card-body">
+                    <div style="text-align: center">
+                        <img alt="生成结果" src="" id="result">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <img alt="中间的图片" id="qrLogo" style="display: none;" src="/static/admin/images/avatar.png">
+    <script>
+        function frontCreate() {
+            let $result = $('#frontResult');
+            $result.html('');
+            let content = $("#frontContent").val();
+
+            // jquery-qrcode 文档地址 https://larsjung.de/jquery-qrcode/
+            $result.qrcode({
+                width: "300",
+                height: "300",
+                mode:4,
+                mSize: 0.3,
+                text: toUtf8(content),
+                image:$('#qrLogo')[0]
+            });
+            return false;
+        }
+
+        // php生成
+        function create() {
+            let content = $("#content").val();
+            $.ajax({
+                url: '{:url("demo/createQrCode")}',
+                type: "post",
+                data: {
+                    content:content
+                },
+                dataType: 'json',
+                cache: false,
+                async:false,
+                success: function (result) {
+                    console.log(result);
+                    if(result.code===200){
+                        $("#result").attr('src',result.data.qrcode+"?"+img_name_random());
+                    }else {
+                        showAdminError(result.msg)
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    showAdminError('系统异常，请稍后重试');
+                }
+            });
+            return false;
+        }
+        //图片后缀随机数
+        function img_name_random() {
+            let rand_one = parseInt(100 * Math.random());
+            let rand_two = parseInt(100 * Math.random());
+            return String(rand_one) + String(rand_two);
+        }
+
+        function toUtf8(str) {
+            let out, i, len, c;
+            out = "";
+            len = str.length;
+            for(i = 0; i < len; i++) {
+                c = str.charCodeAt(i);
+                if ((c >= 0x0001) && (c <= 0x007F)) {
+                    out += str.charAt(i);
+                } else if (c > 0x07FF) {
+                    out += String.fromCharCode(0xE0 | ((c >> 12) & 0x0F));
+                    out += String.fromCharCode(0x80 | ((c >>  6) & 0x3F));
+                    out += String.fromCharCode(0x80 | ((c >>  0) & 0x3F));
+                } else {
+                    out += String.fromCharCode(0xC0 | ((c >>  6) & 0x1F));
+                    out += String.fromCharCode(0x80 | ((c >>  0) & 0x3F));
+                }
+            }
+            return out;
+        }
+    </script>
+</section>
+
+{/block}

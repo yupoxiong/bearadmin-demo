@@ -1,0 +1,15 @@
+    /**
+     * 列表
+     * @param [MODEL_NAME] $model
+     * @return string
+     * @throws Exception
+     */
+    public function index([MODEL_NAME] $model): string
+    {
+        $data = $this->getTreeList($model);
+
+        $this->assign([
+            'data'  => $data,
+        ]);
+        return $this->fetch();
+    }
